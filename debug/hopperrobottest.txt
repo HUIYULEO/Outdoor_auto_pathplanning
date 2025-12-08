@@ -1,0 +1,35 @@
+Hopper test command
+#network setting
+sudo ifconfig enx000ec63084d7 192.168.2.100
+sudo ifconfig enx00e06c39e5fb 192.168.2.100
+
+#clear command:
+
+flushcmds
+
+#stop robot:
+
+idle
+stop
+
+# get sensor data
+eval $odox ; $odoy ; $odoth
+
+#drive:
+
+drive (x,y,th) :($cmdtime > 8)
+drive 3.0 1.23 -0.30 @v 0.8:($cmdtime >10)
+
+#Setup the robot
+cmd = 'set "xmlon" 1\r\n'
+s.send(cmd.encode())
+cmd = 'set "$odox" 0\r\n'
+s.send(cmd.encode())
+cmd = 'set "$odoy" 0\r\n'
+s.send(cmd.encode())
+cmd = 'set "$odoth" 0\r\n'
+s.send(cmd.encode())
+print("Done.")
+
+set $odox 0
+

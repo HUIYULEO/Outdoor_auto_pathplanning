@@ -1,0 +1,24 @@
+#local test final
+archive/
+Dangerpic/
+ImageSamples/
+SpecialImage/
+TrainedModel/
+tests/
+venv/
+.idea/
+*__pycache__
+demo/
+testimg/
+
+# model and data
+checkpoint/*.pth
+data/samples/*
+*.npy
+
+# IDE
+.vscode/
+.idea/
+
+# logging
+*.log

@@ -1,7 +1,14 @@
 # Outdoor Autonomous Path Planning
 ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
 
-A modular pipeline for outdoor robot navigation with segmentation, BEV transform, trajectory generation, and collision-aware planning.
+The project implements an end-to-end **perception-to-navigation** pipeline for an
+outdoor mobile robot (Terrain Hopper):
+
+- **Perception module** – semantic segmentation of drivable area and BEV
+  transformation from RGB(-D) images.
+- **Navigation module** – local path planning (A*/corridor/MLP-style planners),
+  Pure Pursuit motion control, and example scripts used on the real robot system
+  (Hopper robot test).
 
 ## Features
 - Road segmentation (UNet / UNet++ / Attention UNet)
@@ -17,7 +24,7 @@ outdoor_nav/
 ├── perception/ # Perception Module（segmentation for road）
 ├── planning/ # Path Planning Module
 ├── navigation/ # Navigation Control Module
-└── utils/ # Utility  function
+└── utils/ # Utility function
 ```
 
 ## Quick Start

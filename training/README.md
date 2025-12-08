@@ -115,4 +115,4 @@ Uses **BCEWithLogitsLoss** (Binary Cross-Entropy with Logits) for segmentation.
 After training, use the saved checkpoint in:
 
 - `perception/src/segmenter.py` - for inference
-- `main/main.py` - for real-time navigation
+- `core/main.py` - for real-time navigation

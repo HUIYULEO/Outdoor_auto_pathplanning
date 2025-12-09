@@ -29,7 +29,6 @@ real outdoor scenarios.
 ### **Robot Deployment**
 - Integrated with DTU Terrain Hopper (`navigation/src/robot_interface.py`)
 - Real-time loop with Intel RealSense D455 for perception → planning → control in `core/main.py`
-- Modular driver interface (easily replaceable for other robots/cobots)  
 - Training scripts for custom models in `training/` (see `training/README.md`)
 
 ---

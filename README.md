@@ -34,19 +34,19 @@ real outdoor scenarios.
 ---
 
 ## Repository Layout
-- `outdoor_nav/` - main folder
-- `config/` - shared configuration 
-- `utils/` - shared utilities
-- `perception/src/` - segmentation pipeline and BEV conversion helpers
-- `navigation/src/` - trajectory planner and robot client
-- `planning/` - clustered path generation, pure pursuit, and collision utilities
-- `models/` - UNet, UNet++, and Attention UNet definitions
-- `core/main.py` - real-time navigation loop (camera + robot required)
-- `perception/demos/` - run segmentation on a single RGB image
-- `navigation/demos/` - run the full planning stack on an offline mask
-- `training/` - dataset loader, training script, and README for training new checkpoints
-- `checkpoint/` - sample pretrained weights (update paths in configs as needed)
+- `outdoor_nav/` – main folder
+  - `config/` – shared configuration
+  - `utils/` – shared utilities
+  - `perception/src/` – segmentation pipeline and BEV conversion helpers
+  - `navigation/src/` – trajectory planner and robot client
+  - `planning/` – clustered path generation, pure pursuit, and collision utilities
+  - `models/` – UNet, UNet++, and Attention UNet definitions
+  - `core/main.py` – real-time navigation loop (camera + robot required)
+  - `perception/demos/` – run segmentation on a single RGB image
+  - `navigation/demos/` – run the full planning stack on an offline mask
+  - `checkpoint/` – sample pretrained weights (update paths in configs as needed)
 
+- `training/` – dataset loader, training script, and README for training new checkpoints
 ## Quick Start
 
 ### Setup

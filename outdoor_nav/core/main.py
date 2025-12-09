@@ -27,10 +27,9 @@ class NavigationSystem:
     
     def initialize(self):
         """Initialize all system components"""
-        print("=" * 60)
+        print("=" * 60 + "\n")
         print("Robot Navigation System Initialization")
-        print("=" * 60)
-        
+                
         # Initialize robot
         print("\n[1/4] Initializing robot connection...")
         self.robot = RobotController(
@@ -40,7 +39,7 @@ class NavigationSystem:
         )
         self.robot.initialize_odometry()
         odox, odoy, odoth = self.robot.get_odometry()
-        print(f'  ✓ Odometry initialized: x={odox:.3f}, y={odoy:.3f}, θ={np.rad2deg(odoth):.3f}°')
+        print(f' Odometry initialized: x={odox:.3f}, y={odoy:.3f}, θ={np.rad2deg(odoth):.3f}°')
         
         # Initialize segmentation model
         print("\n[2/4] Initializing segmentation model...")
@@ -48,21 +47,20 @@ class NavigationSystem:
             model_path=config.MODEL_PATH,
             model_type=config.MODEL_TYPE
         )
-        print(f'  ✓ Model loaded: {config.MODEL_TYPE} ({config.MODEL_PATH})')
+        print(f' Model loaded: {config.MODEL_TYPE} ({config.MODEL_PATH})')
         
         # Initialize camera
         print("\n[3/4] Initializing camera...")
         self.camera = ImageCaptureAsync(0)
         self.camera.start()
-        print('  ✓ Camera started')
+        print(' Camera started')
         
         # Initialize trajectory planner
         print("\n[4/4] Initializing trajectory planner...")
         self.planner = TrajectoryPlanner()
         self.planner.angle_avg = np.rad2deg(odoth)
-        print('  ✓ Trajectory planner ready')
+        print('  Trajectory planner ready')
         
-        print("\n" + "=" * 60)
         print("System initialization complete! Starting navigation loop...")
         print("=" * 60 + "\n")
     
@@ -148,8 +146,6 @@ class NavigationSystem:
                     continue
                 
                 angle, target_point = angle_result
-                print(f"[Frame {frame_count}] Drive angle: {angle:.2f}°, "
-                      f"Target: ({target_point[0]:.3f}, {target_point[1]:.3f})")
                 
                 # Smooth angle using buffer
                 angle_avg, is_valid = self.planner.smooth_angle(angle, self.planner.angle_avg)
@@ -167,7 +163,6 @@ class NavigationSystem:
                     elif self.planner.stopflag < config.MAX_STOPFLAG:
                         th = np.rad2deg(odoth)
                         self.robot.drive_with_timeout(odox, odoy, th, config.VELOCITY)
-                        print(f"  → Maintain θ={th:.2f}° @ v={config.VELOCITY} (timeout 0.3s)")
                         self.planner.reset_stopflag()
                 
                 # Visualization
@@ -257,7 +252,7 @@ class NavigationSystem:
             print("  → Disconnecting robot...")
             self.robot.disconnect()
         
-        print("✓ Shutdown complete.\n")
+        print("Shutdown complete.\n")
 
 
 def main():

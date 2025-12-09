@@ -14,7 +14,6 @@ testimg/
 # model and data
 checkpoint/*.pth
 data/samples/*
-*.npy
 
 # IDE
 .vscode/

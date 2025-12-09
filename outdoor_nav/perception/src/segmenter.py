@@ -46,7 +46,7 @@ class RoadSegmenter:
         # Load model architecture
         self._load_model(model_path)
         
-        # Preprocessing pipeline - 完全按照 final_nav_test.py
+        # Preprocessing pipeline 
         self.transform = transforms.Compose([
             transforms.Resize((128, 128)),
             transforms.ToTensor(),
@@ -55,7 +55,6 @@ class RoadSegmenter:
     
     def _load_model(self, model_path):
         """Load model architecture and pretrained weights"""
-        print(f"Loading {self.model_type.upper()} model...")
         
         # Create model instance based on type
         if self.model_type == 'unet':
@@ -70,17 +69,14 @@ class RoadSegmenter:
         
         # Load pretrained weights if provided
         if model_path and os.path.exists(model_path):
-            print(f"Loading weights from {model_path}...")
             state_dict = torch.load(model_path, map_location=self.device)
             self.model.load_state_dict(state_dict)
         
         self.model.eval()
-        print(f"✓ Model ready on {self.device}")
     
     def segment(self, color_image, threshold=None):
         """
         Generate segmentation mask from color image
-        完全按照 final_nav_test.py 的实现
         
         Args:
             color_image: numpy array (H, W, 3) in BGR format (from cv.imread)
@@ -91,24 +87,22 @@ class RoadSegmenter:
         """
         threshold = threshold or config.MASK_THRESHOLD
         
-        # 完全按照 final_nav_test.py 的预处理方式
-        # 注意：没有 BGR 到 RGB 的转换！
+        # Mirror the preprocessing pipeline (keep BGR order)
         pil_image = Image.fromarray(color_image)
         preprocessed = self.transform(pil_image)
         
-        # 添加 batch 维度：从 (C, H, W) 变为 (1, C, H, W)
+        # Add batch dimension: (C, H, W) -> (1, C, H, W)
         input_tensor = preprocessed.unsqueeze(0).to(self.device)
         
-        # Inference - 完全按照 final_nav_test.py
+        # Run inference 
         with torch.no_grad():
             outputs = self.model(input_tensor)
         
-        # 处理输出 - 完全按照 final_nav_test.py
         pred_img = F.sigmoid(outputs)
-        pred_img.detach().numpy()  # 虽然不赋值，但保持一致性
+        pred_img.detach().numpy()  # Maintain parity with the reference pipeline
         
-        # 创建二值化 mask - 完全按照 final_nav_test.py 的方式
-        mask = (pred_img > threshold).float()  # Binarize the prediction
+        # Create a binarized mask
+        mask = (pred_img > threshold).float()
         mask = mask.squeeze(0).squeeze(0).numpy()
         
         mask = (mask > 0).astype(np.uint8)  # Convert to binary mask
@@ -120,7 +114,6 @@ class RoadSegmenter:
     def segment_and_clean(self, color_image, threshold=None):
         """
         Segment + remove small areas + merge contours
-        完全按照 final_nav_test.py 的处理流程
         
         Returns:
             mask: cleaned binary mask
@@ -128,12 +121,11 @@ class RoadSegmenter:
         """
         mask = self.segment(color_image, threshold)
         
-        # 使用 removeSmallAreas - 完全按照 final_nav_test.py
+        # Remove small artifacts
         mask, contours = removeSmallAreas(mask, config.MIN_AREA_SIZE)
         
         if len(contours) > 0:
             # Generate approximate contour to reduce overall amount of data
-            # 完全按照 final_nav_test.py
             for i in range(len(contours)):
                 contours[i] = cv.approxPolyDP(contours[i], 2, True)
             
@@ -146,7 +138,7 @@ class RoadSegmenter:
         return mask, contours
     
     def overlay_mask(self, color_image, mask, alpha=0.5, color=(150, 150, 150)):
-        """Overlay mask on original image - 完全按照 final_nav_test.py"""
+        """Overlay mask on the resized image, matching final_nav_test.py"""
         result = color_image.copy()
         result = cv.resize(result, (128, 128))
         result[np.where(mask)] = color

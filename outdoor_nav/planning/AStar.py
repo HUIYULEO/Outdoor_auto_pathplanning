@@ -51,17 +51,6 @@ def astar(start, end, mask):
         open_set.remove(current)
         closed_set.add(current)
 
-        # neighbor_List = [(current[0] - 1, current[1]), (current[0] + 1, current[1]), (current[0], current[1] - 1),
-        #                  (current[0], current[1] + 1), (current[0] - 1, current[1] - 1), (current[0] - 1, current[1] + 1),
-        #                  (current[0] + 1, current[1] - 1), (current[0] + 1, current[1] + 1)]
-
-        # Draw mask image for testing
-        # mask_copy = mask.copy() * 255
-        # for coords in neighbor_List:
-        #     cv.circle(mask_copy, coords, 2, (0, 255, 0), -1)
-        # cv.imshow("Original Image vs Segmentation", mask_copy)
-        # key = cv.waitKey(1)
-
         step_length = 2
 
         # Explore the neighbors of the current node
@@ -73,10 +62,6 @@ def astar(start, end, mask):
 
                 # Check if the neighbor is reachable (white area in the mask)
                 if (mask[neighbor[1], neighbor[0]] != 0):
-                    # print(neighbor)
-                    # print("is")
-                    # print(mask[neighbor[1], neighbor[0]])
-                    # Calculate the tentative g_score for the neighbor
                     tentative_g_score = g_score[current] + cost(current, neighbor)
 
                     # Check if the neighbor is not in the open set or the tentative g_score is lower than the current g_score
@@ -95,11 +80,6 @@ def astar(start, end, mask):
                         # Add the neighbor to the open set
                         open_set.add(neighbor)
 
-
-        # cv.imshow("Original Image vs Segmentation", mask_copy)
-        # Wait for a key press and close the window
-        # if key & 0xFF == ord('q') or key == 27:
-        #     cv.destroyAllWindows()
 
     # No path found
     return None

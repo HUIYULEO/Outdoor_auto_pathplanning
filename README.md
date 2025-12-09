@@ -1,12 +1,10 @@
 # Outdoor Autonomous Path Planning
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![NVIDIA Flex](https://img.shields.io/badge/NVIDIA-Flex-green)](https://developer.nvidia.com/flex)
 ![Python](https://img.shields.io/badge/Python-3.9-blue)
 
 
-The project implements an end-to-end **perception-to-navigation** pipeline for an
-outdoor mobile robot (Terrain Hopper):
+Integrated road-segmentation and navigation stack for a mobile robot (Terrain Hopper). The system uses deep models (UNet / UNet++ / Attention UNet) to segment drivable space, projects it to bird's-eye view (BEV), plans collision-free trajectories, and sends drive commands to a robot over TCP :
 
 - **Perception module** – semantic segmentation of drivable area and BEV
   transformation from RGB(-D) images.
@@ -15,18 +13,42 @@ outdoor mobile robot (Terrain Hopper):
   (Hopper robot test).
 
 ## Features
-- Road segmentation (UNet / UNet++ / Attention UNet)
-- Bird’s Eye View (BEV) transform
-- Midline extraction, clustering, trajectory generation
-- Collision detection and best-trajectory selection
+- Segmentation with interchangeable backbones defined in `models/` and loaded through `perception/src/segmenter.py`
+- BEV projection using the calibrated homography stored in `utils/opt_homoMatrix.npy`
+- Trajectory clustering + pure pursuit planning with collision checks (`planner/`, `navigation/src/trajectory.py`)
+- Robot TCP interface with odometry init and drive helpers (`navigation/src/robot_interface.py`)
+- Ready-to-run demos for offline masks and single-image segmentation; real-time loop with Intel RealSense in `core/main.py`
+- Training scripts for custom models in `training/` (see `training/README.md`)
+
+## Repository Layout
+- `outdoor_nav/` - main folder
+- `config/` - shared configuration 
+- `utils/` - shared utilities
+- `perception/src/` - segmentation pipeline and BEV conversion helpers
+- `navigation/src/` - trajectory planner and robot client
+- `planning/` - clustered path generation, pure pursuit, and collision utilities
+- `models/` - UNet, UNet++, and Attention UNet definitions
+- `core/main.py` - real-time navigation loop (camera + robot required)
+- `perception/demos/` - run segmentation on a single RGB image
+- `navigation/demos/` - run the full planning stack on an offline mask
+- `training/` - dataset loader, training script, and README for training new checkpoints
+- `checkpoint/` - sample pretrained weights (update paths in configs as needed)
 
 ## Quick Start
 
-### Installation
+### Setup
+1) Python 3.9+ recommended. CUDA GPU optional but helpful for real-time.
+2) Install dependencies (adjust torch install for your platform):
+```
+pip install torch torchvision torchaudio
+pip install opencv-python numpy pillow matplotlib torchvision torchsummary pyrealsense2
+```
+3) Verify the homography matrix at `utils/opt_homoMatrix.npy` matches your camera setup; replace it with your calibration if needed.
 
-```
-pip install -r requirements.txt
-```
+## Model Weights
+- Configure the model path and type in `outdoor_nav/config.py` (`MODEL_PATH`, `MODEL_TYPE`, `DEVICE`).
+- Sample checkpoints live under `checkpoint/` (e.g., `checkpoint/unet++/unet++_625.pth`). Point `MODEL_PATH` to the file you want to use.
+
 ## Demos
 
 ### Perception Demos
@@ -45,30 +67,32 @@ python outdoor_nav/navigation/demos/run_full_nav_offline.py \
   --model checkpoint/unet++/unet++_625.pth \
   --threshold 0.5
 ```
-
+Pass a binary drivable-area mask (same size as your BEV space). The script projects to BEV, extracts edges, clusters trajectories, filters collisions, and visualizes the best path
 
 ### Full navigation system
 
-This command starts the **full navigation stack** that was deployed on the DTU Terrain Hopper robot, connecting perception, planning and low-level
-Mobotware commands.
+This command starts the **full navigation stack** that was deployed on the DTU Terrain Hopper robot, connecting perception, planning and low-level Mobotware commands. 
+
 ```
 python -m outdoor_nav.core.navigation_system
 ```
+- Expects a RealSense camera (see `src/imagecapture.py`).
+- Robot IP/port and motion parameters come from `config/config.py`.
+- The loop: capture RGB -> segment -> BEV -> edge extraction -> trajectory generation/filtering -> send drive commands.
 
-## Training Model
 
-Check [training/README.md](training/README.md)
+## Training Your Own Model
+- See `training/README.md` for details. Typical command:
+```
+python training/train.py --data /path/to/dataset --model_type unetpp --epochs 50 --batch_size 8
+```
+- Dataset format: `images/` and `masks/` folders with matching filenames; masks are binary (0/255).
 
-## Configuration
-
-Check outdoor_nav/config/config.py
-
-## Notes
-
-- Large checkpoints (`checkpoint/*.pth`) are not committed; place them locally or provide download links.
+## Notes and Tips
+- If you change the camera or mounting height, recalibrate the homography (`src/opt_homoMatrix.npy`).
+- For smoother steering, tune `ANGLE_TOLERANCE`, `ANGLE_THRESHOLD`, `PATH_SMOOTHING_WINDOW`, and `MAX_STOPFLAG` in `core/config.py`.
+- Offline demos avoid robot/camera dependencies; use them to validate new models or homographies before field tests.
 - Use relative paths where possible; scripts resolve to project root if a path is not absolute.
-- For GPU inference, set `USE_CUDA=true` and ensure CUDA is available.
-
 
 ## Project structure
 
@@ -76,13 +100,13 @@ Check outdoor_nav/config/config.py
 Outdoor_auto_pathplanning
 │  .gitignore
 │  LICENSE
-│  README.md
-│  requirements.txt
+│  README.md                     <- The top-level README for developers using this project.
+│  requirements.txt              <- The requirements file for reproducing the analysis environment
 │
-├─outdoor_nav
-│  │  __init__.py
+├─outdoor_nav                    <- Main source code for use in this project
+│  │  __init__.py                <- Makes src a Python module
 │  │
-│  ├─checkpoint
+│  ├─checkpoint                  <- Location where trained models are saved. Contains final model "unet++_625.torch"
 │  │  ├─unet
 │  │  │      unet_ND618.pth
 │  │  │
@@ -95,16 +119,16 @@ Outdoor_auto_pathplanning
 │  │  │  __init__.py
 │  │
 │  ├─core
-│  │  │  main.py
+│  │  │  main.py                  <- Main code for running the full navigation stack that was deployed on the DTU Terrain Hopper robot.
 │  │  │  __init__.py
 │  │
-│  ├─models
+│  ├─models                       <- Models defination
 │  │  │  attunet.py
 │  │  │  unet.py
 │  │  │  unetpp.py
 │  │  │  __init__.py
 │  │
-│  ├─navigation
+│  ├─navigation                   <- Navigation module
 │  │  │  README.md
 │  │  │
 │  │  ├─data_samples
@@ -116,10 +140,10 @@ Outdoor_auto_pathplanning
 │  │      │  trajectory.py
 │  │      └─ __init__.py
 │  │
-│  ├─perception
+│  ├─perception                   <- Perception module
 │  │  │  README.md
 │  │  │
-│  │  ├─data_samples
+│  │  ├─data_samples              <- Location for pictures used in demos.
 │  │  │      example.png
 │  │  │      true_mask.png
 │  │  │
@@ -132,11 +156,9 @@ Outdoor_auto_pathplanning
 │  │      │  segmenter.py
 │  │      └─ __init__.py
 │  │
-│  ├─planning
+│  ├─planning                   <- path planning algrithom
 │  │  │  AStar.py
 │  │  │  DF_FS_algorithm.py
-│  │  │  DWA.py
-│  │  │  JPS.py
 │  │  │  pure_planner.py
 │  │  │  SplitLR_test.py
 │  │  └─ __init__.py
@@ -144,15 +166,15 @@ Outdoor_auto_pathplanning
 │  │
 │  └─utils
 │     │  opt_homoMatrix.npy
-│     │  utils.py
+│     │  utils.py                 <- Functions to control robot and devices to execute the perception and navigation
 │     └─ __init__.py
 │
 │
 └─training
         config.py
-        dataset.py
+        dataset.py            <- Scripts to generate data and create the readers for the training and testing data
         README.md
-        train.py
+        train.py              <- Main file to train and evaluate models and run inferences on images.
         utils.py
 ```
 

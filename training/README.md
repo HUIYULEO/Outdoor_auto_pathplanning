@@ -1,4 +1,5 @@
 # Training Module
+![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
 
 This folder contains scripts and utilities for training segmentation models. In this project, the models were trained by a dataset with 14000+ images about running road around DTU Campus and all the picture captured by Realsense D455 camera with Hopper robot.
 

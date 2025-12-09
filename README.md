@@ -1,5 +1,9 @@
 # Outdoor Autonomous Path Planning
-![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![NVIDIA Flex](https://img.shields.io/badge/NVIDIA-Flex-green)](https://developer.nvidia.com/flex)
+![Python](https://img.shields.io/badge/Python-3.9-blue)
+
 
 The project implements an end-to-end **perception-to-navigation** pipeline for an
 outdoor mobile robot (Terrain Hopper):
@@ -15,17 +19,6 @@ outdoor mobile robot (Terrain Hopper):
 - Bird’s Eye View (BEV) transform
 - Midline extraction, clustering, trajectory generation
 - Collision detection and best-trajectory selection
-
-## Project structure
-
-```
-outdoor_nav/
-├── models/ # Deep learning model
-├── perception/ # Perception Module（segmentation for road）
-├── planning/ # Path Planning Module
-├── navigation/ # Navigation Control Module
-└── utils/ # Utility function
-```
 
 ## Quick Start
 
@@ -56,8 +49,9 @@ python outdoor_nav/navigation/demos/run_full_nav_offline.py \
 
 ### Full navigation system
 
+This command starts the **full navigation stack** that was deployed on the DTU Terrain Hopper robot, connecting perception, planning and low-level
+Mobotware commands.
 ```
-#used for DTU Terrain Hopper robot
 python -m outdoor_nav.core.navigation_system
 ```
 
@@ -65,7 +59,7 @@ python -m outdoor_nav.core.navigation_system
 
 Check [training/README.md](training/README.md)
 
-## Configureation
+## Configuration
 
 Check outdoor_nav/config/config.py
 
@@ -75,5 +69,93 @@ Check outdoor_nav/config/config.py
 - Use relative paths where possible; scripts resolve to project root if a path is not absolute.
 - For GPU inference, set `USE_CUDA=true` and ensure CUDA is available.
 
+
+## Project structure
+
+```
+Outdoor_auto_pathplanning
+│  .gitignore
+│  LICENSE
+│  README.md
+│  requirements.txt
+│
+├─outdoor_nav
+│  │  __init__.py
+│  │
+│  ├─checkpoint
+│  │  ├─unet
+│  │  │      unet_ND618.pth
+│  │  │
+│  │  └─unet++
+│  │          unet++16_150.pth
+│  │          unet++_625.pth
+│  │
+│  ├─config
+│  │  │  config.py
+│  │  │  __init__.py
+│  │
+│  ├─core
+│  │  │  main.py
+│  │  │  __init__.py
+│  │
+│  ├─models
+│  │  │  attunet.py
+│  │  │  unet.py
+│  │  │  unetpp.py
+│  │  │  __init__.py
+│  │
+│  ├─navigation
+│  │  │  README.md
+│  │  │
+│  │  ├─data_samples
+│  │  ├─demos
+│  │  │      run_full_nav_offline.py
+│  │  │
+│  │  └─src
+│  │      │  robot_interface.py
+│  │      │  trajectory.py
+│  │      └─ __init__.py
+│  │
+│  ├─perception
+│  │  │  README.md
+│  │  │
+│  │  ├─data_samples
+│  │  │      example.png
+│  │  │      true_mask.png
+│  │  │
+│  │  ├─demos
+│  │  │      run_seg_on_image.py
+│  │  │
+│  │  └─src
+│  │      │  bev_transform.py
+│  │      │  imagecapture.py
+│  │      │  segmenter.py
+│  │      └─ __init__.py
+│  │
+│  ├─planning
+│  │  │  AStar.py
+│  │  │  DF_FS_algorithm.py
+│  │  │  DWA.py
+│  │  │  JPS.py
+│  │  │  pure_planner.py
+│  │  │  SplitLR_test.py
+│  │  └─ __init__.py
+│  │  
+│  │
+│  └─utils
+│     │  opt_homoMatrix.npy
+│     │  utils.py
+│     └─ __init__.py
+│
+│
+└─training
+        config.py
+        dataset.py
+        README.md
+        train.py
+        utils.py
+```
+
 ## License
-MIT (see `LICENSE`).
+This project is licensed under the terms of the MIT license.
+

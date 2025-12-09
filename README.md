@@ -102,7 +102,7 @@ python training/train.py --data /path/to/dataset --model_type unetpp --epochs 50
 - Dataset format: `images/` and `masks/` folders with matching filenames; masks are binary (0/255).
 
 ## Notes and Tips
-- If you change the camera or mounting height, recalibrate the homography (`src/opt_homoMatrix.npy`).
+- If you change the camera or mounting height, recalibrate the homography (`utils/opt_homoMatrix.npy`).
 - For smoother steering, tune `ANGLE_TOLERANCE`, `ANGLE_THRESHOLD`, `PATH_SMOOTHING_WINDOW`, and `MAX_STOPFLAG` in `core/config.py`.
 - Offline demos avoid robot/camera dependencies; use them to validate new models or homographies before field tests.
 - Use relative paths where possible; scripts resolve to project root if a path is not absolute.

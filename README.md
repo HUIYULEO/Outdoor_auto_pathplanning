@@ -4,21 +4,35 @@
 ![Python](https://img.shields.io/badge/Python-3.9-blue)
 
 
-Integrated road-segmentation and navigation stack for a mobile robot (Terrain Hopper). The system uses deep models (UNet / UNet++ / Attention UNet) to segment drivable space, projects it to bird's-eye view (BEV), plans collision-free trajectories, and sends drive commands to a robot over TCP :
+End-to-end perception → planning → navigation system for outdoor mobile robots  
+(Deployed on DTU Terrain Hopper Robot — MSc Thesis)
 
-- **Perception module** – semantic segmentation of drivable area and BEV
-  transformation from RGB(-D) images.
-- **Navigation module** – local path planning (A*/corridor/MLP-style planners),
-  Pure Pursuit motion control, and example scripts used on the real robot system
-  (Hopper robot test).
+This project implements a complete autonomous navigation pipeline for an outdoor robot:
+semantic segmentation, BEV projection, local path planning, and real-time control.
+The same codebase was deployed on the DTU **Terrain Hopper** robot and tested in
+real outdoor scenarios.
 
-## Features
-- Segmentation with interchangeable backbones defined in `models/` and loaded through `perception/src/segmenter.py`
-- BEV projection using the calibrated homography stored in `utils/opt_homoMatrix.npy`
-- Trajectory clustering + pure pursuit planning with collision checks (`planner/`, `navigation/src/trajectory.py`)
-- Robot TCP interface with odometry init and drive helpers (`navigation/src/robot_interface.py`)
-- Ready-to-run demos for offline masks and single-image segmentation; real-time loop with Intel RealSense in `core/main.py`
+---
+
+## Key Features
+### **Perception**
+- U-Net++ semantic segmentation for drivable-area detection, defined in `models/` and loaded through `perception/src/segmenter.py`  
+- BEV (Bird’s Eye View) transformation & road-edge extraction  
+- Supports RGB and RGB-D inputs  
+- Lightweight inference wrapper for demos and deployment  
+
+### **Navigation**
+- Corridor-based / Midline Path planner for stable single-path following  
+- Trajectory clustering + pure pursuit planning with collision checks (`planner/`, `navigation/src/trajectory.py`) 
+- Safety checks: dead-end detection, short-path filtering, collision-band avoidance  
+
+### **Robot Deployment**
+- Integrated with DTU Terrain Hopper (`navigation/src/robot_interface.py`)
+- Real-time loop with Intel RealSense D455 for perception → planning → control in `core/main.py`
+- Modular driver interface (easily replaceable for other robots/cobots)  
 - Training scripts for custom models in `training/` (see `training/README.md`)
+
+---
 
 ## Repository Layout
 - `outdoor_nav/` - main folder
